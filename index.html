@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>空き教室探しinTUS富士見 (デモ版)</title>
+    
+    <link rel="stylesheet" href="空き教室探しstyle.css">
+    <script src="roomData.js"></script>
+
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <header class="header">
+            空き教室探しinTUS富士見
+        </header>
+        
+        <nav class="sidebar">
+            <ul id="main-nav">
+                <li id="nav-search" class="nav-link active">検索</li>
+            </ul>
+
+            <h3>階層</h3>
+            <ul id="floor-nav">
+                <li class="nav-link floor-link" data-floor="1F">1F</li>
+                <li class="nav-link floor-link" data-floor="2F">2F</li>
+                <li class="nav-link floor-link" data-floor="3F">3F</li>
+                <li class="nav-link floor-link" data-floor="4F">4F</li>
+                <li class="nav-link floor-link" data-floor="5F">5F</li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            
+            <div id="map-view" class="main-view-panel">
+                
+                <div class="map-area">
+                    <div id="map-1F" class="floor-map-content active">
+                        <p>1階</p>
+                        <div class="map-left-side">
+                            <img src="1F間取り図.jpeg" title="1F間取り図">
+                        </div>
+                        <div class="map-right-side">
+                            <div class="classroom" data-room-id="101">101教室</div>
+                        </div>
+                    </div>
+
+                    <div id="map-2F" class="floor-map-content">
+                        <p>2階</p>
+                        <div class="map-left-side">
+                            <img src="2F間取り図.jpeg" title="2F間取り図">
+                        </div>
+                        <div class="map-right-side">
+                            <div class="classroom" data-room-id="201">201教室</div>
+                        </div>
+                    </div>
+
+                    <div id="map-3F" class="floor-map-content">
+                        <p>3階</p>
+                        <div class="map-left-side">
+                            <img src="3F間取り図.jpeg" title="2F間取り図">
+                        </div>
+                        <div class="map-right-side">
+                            <div class="classroom" data-room-id="301">301教室</div>
+                            <div class="classroom" data-room-id="302">302教室</div>
+                            <div class="classroom" data-room-id="303">303教室</div>
+                            <div class="classroom" data-room-id="304">304教室</div>
+                            <div class="classroom" data-room-id="305">305教室</div>
+                            <div class="classroom" data-room-id="307">307教室</div>
+                            <div class="classroom" data-room-id="308">308教室</div>
+                            <div class="classroom" data-room-id="309">309教室</div>
+                        </div>
+                    </div>
+
+                    <div id="map-4F" class="floor-map-content">
+                        <p>4階</p>
+                        <div class="map-left-side">
+                            <img src="4F間取り図.jpeg" title="2F間取り図">
+                        </div>
+                        <div class="map-right-side">
+                            <div class="classroom" data-room-id="401">401教室</div>
+                            <div class="classroom" data-room-id="402">402教室</div>
+                            <div class="classroom" data-room-id="403">403教室</div>
+                            <div class="classroom" data-room-id="404">404教室</div>
+                            <div class="classroom" data-room-id="405">405教室</div>
+                            <div class="classroom" data-room-id="406">406教室</div>
+                        </div>
+                    </div>
+
+                    <div id="map-5F" class="floor-map-content">
+                        <p>5階</p>
+                        <div class="map-left-side">
+                            <img src="5F間取り図.jpeg" title="2F間取り図">
+                        </div>
+                        <div class="map-right-side">
+                            <div class="classroom" data-room-id="501">501教室</div>
+                            <div class="classroom" data-room-id="502">502教室</div>
+                            <div class="classroom" data-room-id="503">503教室</div>
+                            <div class="classroom" data-room-id="505">505教室</div>
+                            <div class="classroom" data-room-id="506">506教室</div>
+                            <div class="classroom" data-room-id="507">507教室</div>
+                            <div class="classroom" data-room-id="508">508教室</div>
+                            <div class="classroom" data-room-id="509">509教室</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="details-area">
+                    <div id="details-prompt" class="room-details-content active">
+                        <h3>教室を選択してください</h3>
+                        <p>上の教室番号をクリックすると、詳細情報が表示されます。</p>
+                    </div>
+
+                    <div id="dynamic-details-container"></div>
+                </div>
+            </div>
+
+            <div id="search-view" class="main-view-panel active">
+                
+                <div class="search-page-top">
+                    <h2>教室を検索</h2>
+                    <div class="search-page-filters">
+                        <input type="text" id="search-keyword" placeholder="教室名 (例: 101)">
+                        
+                        <select id="search-equip">
+                            <option value="">設備で絞り込む</option>
+                            <option value="電源">電源あり</option>
+                            <option value="可動式">可動式机</option>
+                            <option value="固定式">固定式机</option>
+                        </select>
+                        
+                        <select id="search-status">
+                            <option value="">状況で絞り込む</option>
+                            <option value="available">今すぐ利用可能</option>
+                        </select>
+                        
+                        <button id="execute-search-btn">検索</button>
+                    </div>
+                </div>
+
+                <div class="search-page-bottom">
+                    <div id="search-results-area">
+                        <div id="initial-categories">
+                            <h2>カテゴリから探す</h2>
+                            <div class="category-grid">
+                                <div class="category-card" id="cat-1" data-search-type="status" data-search-value="available">
+                                    <span>今すぐ使える教室</span>
+                                </div>
+                                <div class="category-card" id="cat-2" data-search-type="equip" data-search-value="電源">
+                                    <span>電源コンセント</span>
+                                </div>
+                                <div class="category-card" id="cat-3" data-search-type="equip" data-search-value="可動式">
+                                    <span>可動式机</span>
+                                </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <div class="footer-container">
+                <h3>サイト全体の口コミ・ご意見</h3>
+                <p>このアプリへの感想や、「こんな機能が欲しい！」という要望を自由に投稿してください。</p>
+                
+                <ul id="site-reviews-list" class="footer-reviews-list">
+                </ul>
+
+                <div class="footer-input-area">
+                    <input type="text" id="site-review-input" placeholder="コメントを入力...">
+                    <button id="site-review-submit">投稿する</button>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    
+    <script src="空き教室探しmove.js" defer></script>
+
+</body>
+</html>

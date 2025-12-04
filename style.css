@@ -1,0 +1,531 @@
+/* -------------------------
+ * 基本レイアウト
+ * ------------------------- */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    height: 100%;
+}
+.app-container {
+    display: grid;
+    /* "header header"
+       "sidebar main"
+       "footer footer" */
+    grid-template-areas: 
+        "header header"
+        "sidebar main"
+        "footer footer";
+    grid-template-columns: 200px 1fr; /* サイドバー幅 200px, メインは残り全部 */
+    grid-template-rows: 60px 1fr auto; /* ヘッダー高 60px, フッターは自動, メインは残り全部 */
+    height: 100vh; /* 画面全体の高さ */
+}
+
+/* -------------------------
+ * ヘッダー
+ * ------------------------- */
+.header {
+    grid-area: header;
+    background-color: #343a40;
+    color: white;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* -------------------------
+ * 左サイドバー (階層)
+ * ------------------------- */
+.sidebar {
+    grid-area: sidebar;
+    background-color: #ffffff;
+    border-right: 1px solid #ddd;
+    padding: 15px;
+}
+.sidebar h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.sidebar .nav-link {
+    padding: 12px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.sidebar .nav-link:hover {
+    background-color: #f0f0f0;
+}
+/* .active は .nav-link につく */
+.sidebar .nav-link.active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* -------------------------
+ * メインコンテンツ
+ * ------------------------- */
+.main-content {
+    grid-area: main;
+    display: flex;
+    flex-direction: column; /* 上下に分割 */
+    overflow: hidden; /* スクロールバー制御 */
+}
+
+/* -------------------------
+ * ページ切り替え
+ * ------------------------- */
+.main-view-panel {
+    display: none; /* (1) JSで切り替えるため、基本は非表示 */
+    width: 100%;
+    height: 100%;
+    overflow-y: auto; /* (3) 各ページでスクロール可能に */
+}
+.main-view-panel.active {
+    display: flex; /* (2) .active がついたら表示 */
+    flex-direction: column;
+}
+
+/* -------------------------
+ * メイン(上): 見取り図エリア
+ * ------------------------- */
+.map-area {
+    flex: 1; /* 残りの高さをすべて取る */
+    padding: 20px;
+    background-color: #fdfdfd;
+    border-bottom: 2px solid #ddd;
+    overflow: auto; /* 内容が多ければスクロール */
+}
+.map-area h2 {
+    margin-top: 0;
+}
+
+/* 各階のマップコンテンツの制御 */
+/* 各階のマップコンテンツの枠 */
+.floor-map-content {
+    display: none; /* 基本は非表示 */
+    height: 100%;  /* 高さを確保 */
+}
+
+/* 表示時のスタイル (Flexboxで横並びにする) */
+.floor-map-content.active {
+    display: flex; /* ★ここを block から flex に変更 */
+    gap: 20px;     /* 左と右の間隔 */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* --- 左側：見取り図エリア --- */
+.map-left-side {
+    flex: 1; /* 幅の比率 (1:2 の 1 の方) */
+    
+    /* 画像を中央寄せするための設定 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* 画像がはみ出ないように */
+}
+
+/* 実際に画像を入れる時のスタイル */
+/* 既存の .map-left-side img を修正 */
+.map-left-side img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* 全体が見えるように収める (余白が出る可能性あり) */
+    background-color: #f0f0f0; /* 余白部分の色 */
+}
+
+/* --- 右側：ボタンエリア --- */
+.map-right-side {
+    flex: 2; /* 幅の比率 (1:2 の 2 の方) */
+    overflow-y: auto; /* ボタンが多すぎる場合はここだけスクロール */
+    padding-right: 10px;
+    
+    /* ボタンをきれいに並べる設定 (グリッド表示) */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* 幅に合わせて自動調整 */
+    gap: 10px;     /* ボタン同士の間隔 */
+    align-content: start; /* 上詰めにする */
+}
+
+/* .classroom のスタイルを少し調整 (グリッド用に display を変更) */
+.classroom {
+    display: flex; /* inline-block から flex に変更 */
+    align-items: center;
+    justify-content: center;
+    height: 60px; /* ボタンの高さを統一 */
+    margin: 0;    /* グリッドのgapで隙間を作るのでmarginは0に */
+    
+    background-color: #d1e7dd;
+    border: 1px solid #a3c0a3;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* フェードインアニメーション定義 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* デモ用の教室 (クリック可能にする) */
+.classroom {
+    display: inline-block;
+    padding: 20px;
+    margin: 10px;
+    background-color: #d1e7dd; /* 空き教室 (緑系) */
+    border: 1px solid #a3c0a3;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.classroom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+/* 選択中の教室スタイル (JSで制御) */
+.classroom.selected {
+    border: 3px solid #007bff;
+    background-color: #cce5ff;
+}
+
+/* -------------------------
+ * メイン(下): 教室詳細エリア
+ * ------------------------- */
+.details-area {
+    height: 40%; /* 高さを40%に固定 */
+    background-color: #ffffff;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+    overflow-y: auto; /* 詳細が長ければここだけスクロール */
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+}
+
+/* 詳細情報コンテンツ (JSでの表示切替用) */
+.room-details-content {
+    display: none; /* 基本は非表示 */
+}
+.room-details-content.active {
+    display: block; /* .active が付いたら表示 */
+}
+
+/* タブのスタイル */
+.tabs {
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 15px;
+}
+.tab-button {
+    padding: 10px 15px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: 1rem;
+    border-bottom: 3px solid transparent;
+}
+.tab-button.active {
+    font-weight: bold;
+    border-bottom: 3px solid #007bff;
+    color: #007bff;
+}
+.tab-content {
+    display: none; /* JSで表示を切り替え */
+    line-height: 1.6;
+}
+.tab-content.active {
+    display: block;
+}
+.tab-content h4 {
+    margin-top: 0;
+}
+.tab-content button {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.tab-content button:hover {
+    background-color: #0056b3;
+}
+
+/* -------------------------
+ * 検索ページ (全体)
+ * ------------------------- */
+#search-view .search-page-top {
+    padding: 20px;
+    background-color: #fdfdfd;
+    border-bottom: 2px solid #ddd;
+}
+#search-view h2 {
+    margin-top: 0;
+}
+
+/* 絞り込みフォーム */
+.search-page-filters {
+    display: flex;
+    flex-wrap: wrap; /* 折り返し */
+    gap: 10px; /* 要素間の隙間 */
+}
+.search-page-filters input[type="text"],
+.search-page-filters select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    flex-grow: 1; /* 伸びてスペースを埋める */
+}
+.search-page-filters button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.search-page-filters button:hover {
+    background-color: #0056b3;
+}
+
+/* -------------------------
+ * 検索(下): カテゴリグリッド
+ * ------------------------- */
+.search-page-bottom {
+    padding: 20px;
+    flex: 1; /* 残りの高さをすべて取る */
+    background-color: #f0f2f5; /* 少し背景色を変える */
+}
+
+.category-grid {
+    display: grid;
+    /* 最小200px、最大1fr(均等)で、入るだけカラムを自動で詰める */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px; /* グリッド間の隙間 */
+}
+
+.category-card {
+    height: 120px;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: flex-end; /* テキストを下揃え */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    
+    /* カード内のテキストスタイル */
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    
+    /* 画像の代わりに背景色 (デモ用) */
+    background-size: cover;
+    background-position: center;
+}
+.category-card:hover {
+    transform: scale(1.03); /* 少し浮き上がる */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* カテゴリごとの色 (Apple Music風のカラフルな指定) */
+#cat-1 { background-color: #e63946; }
+#cat-2 { background-color: #f1faee; color: #1d3557; text-shadow: none;} /* 明るい色 */
+#cat-3 { background-color: #a8dadc; color: #1d3557; text-shadow: none;}
+#cat-4 { background-color: #457b9d; }
+#cat-5 { background-color: #1d3557; }
+#cat-6 { background-color: #fca311; }
+
+/* -------------------------
+ * フッター
+ * ------------------------- */
+.footer {
+    grid-area: footer;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #ddd;
+    font-size: 0.9rem;
+}
+
+/* ▼▼▼ タイムライン表のスタイル (末尾に追加) ▼▼▼ */
+.timeline-container {
+    margin-top: 15px;
+    overflow-x: auto; /* 画面が狭いときは横スクロール */
+}
+
+.timeline-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem; /* 少し文字を小さくして収める */
+    min-width: 400px; /* 最低限の幅を確保 */
+}
+
+.timeline-table th,
+.timeline-table td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* ヘッダーと曜日列 */
+.timeline-table thead th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #555;
+}
+.timeline-table .day-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* 空きコマのスタイル */
+.timeline-table .status-free {
+    background-color: #e6f7ff;
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* 授業中のスタイル */
+.timeline-table .status-occupied {
+    background-color: #fff3cd; /* 薄い黄色/オレンジ */
+    color: #856404;
+    font-size: 0.75rem; /* 授業名は小さく */
+}
+
+.footer {
+    /* 既存のスタイルを少し調整 */
+    background-color: #343a40; /* ヘッダーと同じ暗い色にすると締まります */
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.footer-container {
+    max-width: 800px;
+    margin: 0 auto; /* 中央寄せ */
+}
+
+.footer h3 {
+    margin-top: 0;
+    color: #fff;
+}
+
+/* 口コミリスト（掲示板部分） */
+.footer-reviews-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    background-color: rgba(255, 255, 255, 0.1); /* 半透明の背景 */
+    border-radius: 8px;
+    max-height: 200px; /* 高さを制限 */
+    overflow-y: auto;  /* 溢れたらスクロール */
+    text-align: left;
+}
+
+.footer-reviews-list li {
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.9rem;
+}
+
+/* 投稿フォームエリア */
+.footer-input-area {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.footer-input-area input {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    width: 70%;
+    max-width: 400px;
+}
+
+.footer-input-area button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.footer-input-area button:hover {
+    background-color: #0056b3;
+}
+
+/* ▼▼▼ スマホ対応 (レスポンシブデザイン) ▼▼▼ */
+@media (max-width: 768px) {
+    /* 全体レイアウトを縦並びに */
+    .app-container {
+        grid-template-areas: 
+            "header"
+            "main"
+            "sidebar" /* サイドバーを下に回すか、上に置くか */
+            "footer";
+        grid-template-columns: 1fr; /* 1列にする */
+        grid-template-rows: 60px 1fr auto auto;
+    }
+
+    /* サイドバーを横スクロール可能なメニューバーに変更 */
+    .sidebar {
+        border-right: none;
+        border-top: 1px solid #ddd;
+        order: 2; /* 順序制御 */
+        white-space: nowrap;
+        overflow-x: auto;
+        padding: 10px;
+    }
+    .sidebar ul {
+        display: flex;
+    }
+    .sidebar .nav-link {
+        margin-right: 10px;
+        margin-bottom: 0;
+        padding: 10px 20px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+    }
+
+    /* 見取り図エリアを縦並びに */
+    .floor-map-content.active {
+        flex-direction: column; /* 左(図)と右(ボタン)を縦に積む */
+    }
+    .map-left-side {
+        height: 300px; /* 図の高さを固定 */
+        flex: none;
+    }
+    .map-right-side {
+        flex: none;
+        height: auto; /* ボタンエリアは中身に合わせて伸びる */
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    /* 詳細エリアを広げる */
+    .details-area {
+        height: auto;
+        flex: 1; /* 残りのスペースを使う */
+    }
+}

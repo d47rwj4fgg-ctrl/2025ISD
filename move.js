@@ -7,11 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     //  ▼ 0. ヘルパー関数
     // ==========================================
 
+    // 時間変換
     function timeToMinutes(timeStr) {
         const [hours, minutes] = timeStr.split(':').map(Number);
         return hours * 60 + minutes;
     }
 
+    // 現在の状況判定
     function calculateRoomStatus(schedule) {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes(); 
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return { status, statusText, statusColor, userText, timeMessage };
     }
 
+    // タイムライン表生成
     function generateTimelineHTML(schedule) {
         const days = ["月", "火", "水", "木", "金"];
         const periods = [
@@ -96,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return html;
     }
 
+    // 口コミ保存・取得
     function getLocalReviews(roomId) {
         const storedReviews = localStorage.getItem('reviews_' + roomId);
         return storedReviews ? JSON.parse(storedReviews) : [];
@@ -123,33 +127,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchEquip = document.getElementById('search-equip');
     const searchStatus = document.getElementById('search-status');
     const searchResultsArea = document.getElementById('search-results-area');
-    // 初期カテゴリ表示用のHTMLを保存しておく
-    const initialCategoriesHTML = document.getElementById('initial-categories').outerHTML;
+    // 初期カテゴリ表示用のHTMLを保存しておく (存在チェック付き)
+    let initialCategoriesHTML = "";
+    const initialCategoriesElem = document.getElementById('initial-categories');
+    if (initialCategoriesElem) {
+        initialCategoriesHTML = initialCategoriesElem.outerHTML;
+    }
 
     // 「検索」クリック（リセット機能付き）
-    searchLink.addEventListener('click', () => {
-        allNavLinks.forEach(link => link.classList.remove('active'));
-        searchLink.classList.add('active');
-        searchView.classList.add('active');
-        mapView.classList.remove('active');
+    if(searchLink) {
+        searchLink.addEventListener('click', () => {
+            allNavLinks.forEach(link => link.classList.remove('active'));
+            searchLink.classList.add('active');
+            if(searchView) searchView.classList.add('active');
+            if(mapView) mapView.classList.remove('active');
 
-        // ▼ 追加: 検索状態をリセットする
-        searchKeyword.value = "";
-        searchEquip.value = "";
-        searchStatus.value = "";
-        searchResultsArea.innerHTML = initialCategoriesHTML;
-        
-        // カテゴリボタンのイベントを再登録
-        attachCategoryEvents();
-    });
+            // 検索状態をリセット
+            if(searchKeyword) searchKeyword.value = "";
+            if(searchEquip) searchEquip.value = "";
+            if(searchStatus) searchStatus.value = "";
+            if(searchResultsArea && initialCategoriesHTML) {
+                searchResultsArea.innerHTML = initialCategoriesHTML;
+                // カテゴリボタンのイベントを再登録
+                attachCategoryEvents();
+            }
+        });
+    }
 
     // 「階層」クリック
     floorLinks.forEach(link => {
         link.addEventListener('click', () => {
             allNavLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
-            mapView.classList.add('active');
-            searchView.classList.remove('active');
+            if(mapView) mapView.classList.add('active');
+            if(searchView) searchView.classList.remove('active');
 
             const floorName = link.dataset.floor;
             if (mapTitle) mapTitle.textContent = `${floorName} フロアマップ`;
@@ -158,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetMap = document.getElementById('map-' + floorName);
             if (targetMap) targetMap.classList.add('active');
             
+            // リセット処理
             const detailsPrompt = document.getElementById('details-prompt');
             const dynamicContainer = document.getElementById('dynamic-details-container');
             if(dynamicContainer) dynamicContainer.innerHTML = "";
@@ -174,9 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 検索実行関数
     function executeSearch() {
-        const keyword = searchKeyword.value.trim();
-        const equip = searchEquip.value;
-        const statusReq = searchStatus.value;
+        const keyword = searchKeyword ? searchKeyword.value.trim() : "";
+        const equip = searchEquip ? searchEquip.value : "";
+        const statusReq = searchStatus ? searchStatus.value : "";
 
         let resultsHTML = '<h2>検索結果</h2><div class="map-right-side" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap:10px;">';
         let count = 0;
@@ -202,10 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsHTML += '</div>';
 
         if (count === 0) {
-            searchResultsArea.innerHTML = '<h2>検索結果</h2><p>条件に一致する教室は見つかりませんでした。</p>';
+            if(searchResultsArea) searchResultsArea.innerHTML = '<h2>検索結果</h2><p>条件に一致する教室は見つかりませんでした。</p>';
         } else {
-            searchResultsArea.innerHTML = resultsHTML;
-            attachClickEventToNewButtons();
+            if(searchResultsArea) {
+                searchResultsArea.innerHTML = resultsHTML;
+                attachClickEventToNewButtons();
+            }
         }
     }
 
@@ -223,13 +237,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // フォームに値をセット
                 if (type === 'status') {
-                    searchStatus.value = value;
-                    searchEquip.value = ""; 
+                    if(searchStatus) searchStatus.value = value;
+                    if(searchEquip) searchEquip.value = ""; 
                 } else if (type === 'equip') {
-                    searchEquip.value = value;
-                    searchStatus.value = "";
+                    if(searchEquip) searchEquip.value = value;
+                    if(searchStatus) searchStatus.value = "";
                 }
-                searchKeyword.value = "";
+                if(searchKeyword) searchKeyword.value = "";
 
                 // 検索実行
                 executeSearch();
@@ -243,17 +257,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 検索結果ボタンへのイベント付与
     function attachClickEventToNewButtons() {
+        if(!searchResultsArea) return;
         const newButtons = searchResultsArea.querySelectorAll('.classroom');
         newButtons.forEach(room => {
             room.addEventListener('click', () => {
                 const roomId = room.dataset.roomId;
-                document.getElementById('map-view').classList.add('active');
-                document.getElementById('search-view').classList.remove('active');
+                
+                // 詳細画面へ遷移 (1Fを表示状態にして詳細を出す)
+                if(mapView) mapView.classList.add('active');
+                if(searchView) searchView.classList.remove('active');
                 allNavLinks.forEach(l => l.classList.remove('active'));
                 
-                // とりあえず1Fをアクティブにする（階層判定ロジックを入れると完璧ですが今回は簡易的に）
-                document.querySelector('[data-floor="1F"]').classList.add('active');
+                // とりあえず1Fをアクティブにする
+                // roomDataに階層情報があればそれを使えますが、今回は簡易的に1Fへ
+                // 本来は roomId から階層を推測するロジック (例: 301 -> 3F) があるとベター
+                let targetFloor = "1F";
+                const firstDigit = roomId.charAt(0);
+                if(["1","2","3","4","5"].includes(firstDigit)) {
+                    targetFloor = firstDigit + "F";
+                }
                 
+                // サイドバーの更新
+                const floorLink = document.querySelector(`.floor-link[data-floor="${targetFloor}"]`);
+                if(floorLink) {
+                    floorLink.classList.add('active');
+                    if(mapTitle) mapTitle.textContent = `${targetFloor} フロアマップ`;
+                }
+
+                // マップ表示の切り替え
+                allFloorMaps.forEach(map => map.classList.remove('active'));
+                const targetMap = document.getElementById('map-' + targetFloor);
+                if (targetMap) targetMap.classList.add('active');
+
+                // 詳細表示
                 showRoomDetails(roomId);
             });
         });
@@ -261,21 +297,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ==========================================
-    //  ▼ 3. 教室詳細表示 (予約機能削除版)
+    //  ▼ 3. 教室詳細表示 (共通関数化)
     // ==========================================
     const classrooms = document.querySelectorAll('.classroom');
     const detailsPrompt = document.getElementById('details-prompt');
     const dynamicContainer = document.getElementById('dynamic-details-container');
 
+    // 詳細を表示するメインロジック
     function showRoomDetails(roomId) {
         const data = roomDatabase[roomId];
         if (!data) return;
 
         if(detailsPrompt) detailsPrompt.classList.remove('active');
 
+        // 状態取得
         const currentStatus = calculateRoomStatus(data.schedule || []);
         const timelineTable = generateTimelineHTML(data.schedule || []);
         
+        // 口コミ取得
         const localReviews = getLocalReviews(roomId);
         const allReviews = (data.reviews || []).concat(localReviews);
         let reviewsListHtml = allReviews.map(r => `<li>${r}</li>`).join('');
@@ -303,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <hr>
                     <h4>週間スケジュール</h4>
                     ${timelineTable}
-                    </div>
+                </div>
 
                 <div id="tab-reviews" class="tab-content">
                     <h4>口コミ一覧・投稿</h4>
@@ -316,8 +355,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        dynamicContainer.innerHTML = htmlContent;
+        if(dynamicContainer) dynamicContainer.innerHTML = htmlContent;
 
+        // 口コミ投稿イベント設定
         const submitBtn = document.getElementById('submit-review-btn');
         const inputField = document.getElementById('review-input');
         const listField = document.getElementById('reviews-list');
@@ -338,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // マップ上の教室クリックイベント
     classrooms.forEach(room => {
         room.addEventListener('click', () => {
             const roomId = room.dataset.roomId;
@@ -349,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ==========================================
-    //  ▼ 4. タブ切り替え
+    //  ▼ 4. タブ切り替え (グローバル関数)
     // ==========================================
     window.switchTab = function(button, tabName) {
         const parentContainer = button.closest('.room-details-content');
@@ -402,6 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 初期読み込み
     loadSiteReviews();
 
 }); // DOMContentLoaded 終了

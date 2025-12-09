@@ -477,25 +477,47 @@ body, html {
 
 /* ▼▼▼ スマホ対応 (レスポンシブデザイン) ▼▼▼ */
 @media (max-width: 768px) {
-    /* 全体レイアウトを縦並びに */
+    /* 1. アプリ全体の高さ固定を解除し、縦積みに変更 */
     .app-container {
-        grid-template-areas: 
-            "header"
-            "main"
-            "sidebar" /* サイドバーを下に回すか、上に置くか */
-            "footer";
-        grid-template-columns: 1fr; /* 1列にする */
-        grid-template-rows: 60px 1fr auto auto;
+        display: flex;       /* GridではなくFlexboxで単純に縦に並べる */
+        flex-direction: column;
+        height: auto;        /* ★重要: 画面高固定を解除 */
+        min-height: 100vh;   /* コンテンツが少なくても最低限画面いっぱい */
     }
 
-    /* サイドバーを横スクロール可能なメニューバーに変更 */
+    /* 2. 並び順を指定 (Flexbox用) */
+    .header { order: 1; }
+    .main-content { order: 2; }
+    .sidebar { order: 3; }
+    .footer { order: 4; }
+
+    /* 3. メインエリアの内部スクロールを解除し、自然に伸ばす */
+    .main-content {
+        overflow: visible;
+        height: auto;
+        flex: none; /* 伸縮しない */
+    }
+    .main-view-panel {
+        overflow-y: visible; /* 内部スクロールをやめる */
+        height: auto;
+    }
+    
+    /* 4. 詳細エリアの高さ制限も解除 */
+    .details-area {
+        height: auto; /* 40%固定をやめる */
+        overflow-y: visible;
+        border-top: 4px solid #f0f0f0; /* 区切りを見やすく */
+    }
+
+    /* 5. サイドバー (横スクロールメニュー) */
     .sidebar {
         border-right: none;
         border-top: 1px solid #ddd;
-        order: 2; /* 順序制御 */
+        border-bottom: 1px solid #ddd;
         white-space: nowrap;
         overflow-x: auto;
         padding: 10px;
+        background-color: #fff;
     }
     .sidebar ul {
         display: flex;
@@ -503,29 +525,31 @@ body, html {
     .sidebar .nav-link {
         margin-right: 10px;
         margin-bottom: 0;
-        padding: 10px 20px;
+        padding: 10px 15px;
         background-color: #f8f9fa;
         border: 1px solid #ddd;
+        font-size: 0.9rem;
     }
 
-    /* 見取り図エリアを縦並びに */
+    /* 6. 見取り図エリア */
     .floor-map-content.active {
-        flex-direction: column; /* 左(図)と右(ボタン)を縦に積む */
+        flex-direction: column;
     }
     .map-left-side {
-        height: 300px; /* 図の高さを固定 */
+        height: 250px; /* 図の高さを適度に確保 */
         flex: none;
     }
     .map-right-side {
         flex: none;
-        height: auto; /* ボタンエリアは中身に合わせて伸びる */
-        max-height: 200px;
-        overflow-y: auto;
+        height: auto;
+        overflow-y: visible; /* ボタン一覧も全部表示してしまう */
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 10px;
     }
     
-    /* 詳細エリアを広げる */
-    .details-area {
-        height: auto;
-        flex: 1; /* 残りのスペースを使う */
+    /* フッターの調整 */
+    .footer {
+        padding-bottom: 80px; /* スマホの操作バーに被らないよう少し余白 */
     }
 }

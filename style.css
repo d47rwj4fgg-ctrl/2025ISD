@@ -479,34 +479,37 @@ body, html {
 @media (max-width: 768px) {
     /* 1. アプリ全体の高さ固定を解除し、縦積みに変更 */
     .app-container {
-        display: flex;       /* GridではなくFlexboxで単純に縦に並べる */
+        display: flex;
         flex-direction: column;
-        height: auto;        /* ★重要: 画面高固定を解除 */
-        min-height: 100vh;   /* コンテンツが少なくても最低限画面いっぱい */
+        height: auto;
+        min-height: 100vh;
     }
 
-    /* 2. 並び順を指定 (Flexbox用) */
+    /* 2. 並び順を指定 */
     .header { order: 1; }
     .main-content { order: 2; }
     .sidebar { order: 3; }
     .footer { order: 4; }
 
-    /* 3. メインエリアの内部スクロールを解除し、自然に伸ばす */
+    /* 3. メインエリアを強制的に縦に伸ばす（フッターを押し下げる） */
     .main-content {
         overflow: visible;
         height: auto;
-        flex: none; /* 伸縮しない */
+        flex: none;
+        /* ★ここがポイント：画面の85%分の高さを確保して、フッターを画面外へ */
+        min-height: 85vh; 
     }
+    
     .main-view-panel {
-        overflow-y: visible; /* 内部スクロールをやめる */
+        overflow-y: visible;
         height: auto;
     }
     
     /* 4. 詳細エリアの高さ制限も解除 */
     .details-area {
-        height: auto; /* 40%固定をやめる */
+        height: auto;
         overflow-y: visible;
-        border-top: 4px solid #f0f0f0; /* 区切りを見やすく */
+        border-top: 4px solid #f0f0f0;
     }
 
     /* 5. サイドバー (横スクロールメニュー) */
@@ -536,13 +539,13 @@ body, html {
         flex-direction: column;
     }
     .map-left-side {
-        height: 250px; /* 図の高さを適度に確保 */
+        height: 250px;
         flex: none;
     }
     .map-right-side {
         flex: none;
         height: auto;
-        overflow-y: visible; /* ボタン一覧も全部表示してしまう */
+        overflow-y: visible;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
         gap: 10px;
@@ -550,6 +553,6 @@ body, html {
     
     /* フッターの調整 */
     .footer {
-        padding-bottom: 80px; /* スマホの操作バーに被らないよう少し余白 */
+        padding-bottom: 80px;
     }
 }

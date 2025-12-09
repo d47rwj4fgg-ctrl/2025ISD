@@ -475,73 +475,95 @@ body, html {
     background-color: #0056b3;
 }
 
-/* ▼▼▼ スマホ対応 (レスポンシブデザイン) ▼▼▼ */
+/* ▼▼▼ スマホ対応 (レスポンシブデザイン) - 修正版 ▼▼▼ */
 @media (max-width: 768px) {
-    /* 1. アプリ全体の高さ固定を解除し、縦積みに変更 */
+    /* 1. 全体のレイアウト */
     .app-container {
         display: flex;
         flex-direction: column;
         height: auto;
         min-height: 100vh;
+        /* 固定サイドバー(約60px)の分だけ下に余白を空ける */
+        padding-bottom: 70px; 
     }
 
-    /* 2. 並び順を指定 */
+    /* 2. 並び順 */
     .header { order: 1; }
     .main-content { order: 2; }
-    .sidebar { order: 3; }
-    .footer { order: 4; }
+    .footer { order: 3; }
 
-    /* 3. メインエリアを強制的に縦に伸ばす（フッターを押し下げる） */
+    /* 3. メインエリアの調整 */
     .main-content {
         overflow: visible;
         height: auto;
         flex: none;
-        /* ★ここがポイント：画面の85%分の高さを確保して、フッターを画面外へ */
-        min-height: 85vh; 
+        min-height: 85vh;
     }
-    
     .main-view-panel {
         overflow-y: visible;
         height: auto;
     }
     
-    /* 4. 詳細エリアの高さ制限も解除 */
+    /* 4. 詳細エリアの高さ制限解除 */
     .details-area {
         height: auto;
         overflow-y: visible;
         border-top: 4px solid #f0f0f0;
     }
 
-    /* 5. サイドバー (横スクロールメニュー) */
+    /* 5. サイドバー (画面下固定) */
     .sidebar {
-        border-right: none;
-        border-top: 1px solid #ddd;
-        border-bottom: 1px solid #ddd;
-        white-space: nowrap;
-        overflow-x: auto;
-        padding: 10px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
         background-color: #fff;
+        border-top: 1px solid #ccc;
+        border-right: none;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        padding: 5px 0;
+        display: flex;
+        align-items: center;
+        overflow-x: auto;
     }
+    .sidebar h3 { display: none; }
     .sidebar ul {
         display: flex;
+        padding: 0;
+        margin: 0;
+        flex-shrink: 0;
     }
     .sidebar .nav-link {
-        margin-right: 10px;
-        margin-bottom: 0;
-        padding: 10px 15px;
-        background-color: #f8f9fa;
-        border: 1px solid #ddd;
+        margin: 0 2px;
+        padding: 8px 15px;
+        border-radius: 5px;
         font-size: 0.9rem;
+        white-space: nowrap;
+        background-color: transparent;
+        border: none;
+        color: #555;
+        text-align: center;
+    }
+    .sidebar .nav-link.active {
+        color: #007bff;
+        background-color: #e7f1ff;
+        font-weight: bold;
     }
 
-    /* 6. 見取り図エリア */
+    /* 6. 見取り図エリア (★ここを修正) */
     .floor-map-content.active {
         flex-direction: column;
     }
     .map-left-side {
-        height: 250px;
+        width: 100%;         /* 横幅いっぱい */
+        aspect-ratio: 1 / 1; /* ★比率を1:1(正方形)に固定 */
+        height: auto;        /* 高さは幅に合わせて自動調整 */
         flex: none;
+        background-color: #f9f9f9; /* 画像の背景色（余白用） */
     }
+    /* 画像自体の設定は共通CSS(.map-left-side img)が効いているのでそのままでOK */
+
     .map-right-side {
         flex: none;
         height: auto;
@@ -549,10 +571,11 @@ body, html {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
         gap: 10px;
+        padding: 10px; /* 少し余白を追加 */
     }
     
     /* フッターの調整 */
     .footer {
-        padding-bottom: 80px;
+        padding-bottom: 20px;
     }
 }
